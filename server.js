@@ -5,6 +5,7 @@ const cookieSession = require("cookie-session");
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const apiRouter = require('./api');
+const path = require('path');
 
 app.use('/api', apiRouter);
 
@@ -27,9 +28,10 @@ app.use(
     })
   );
 
-app.get('/', (request, response) => {
-    response.json({ message: 'Welcome to my e-commerce store' })
-  });
+  app.get('/', function(request, response) {
+	response.sendFile(path.join(__dirname + '/login.html'));
+});
+
 
 app.listen(port, () =>{
     console.log(`App listening on port ${port}`)
