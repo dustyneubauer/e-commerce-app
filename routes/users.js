@@ -13,11 +13,14 @@ userRouter.post('/', (req, res) => {
 })
 
 userRouter.get('/', (req,res) => {
+    console.log("test")
     pool.query('Select * FROM users ORDER BY id ASC', (error, results) => {
         if (error) {
-            response.status(404).send();
+           return res.status(500).json({
+               message: error.message
+           });
         }
-        response.status(200).json(results);
+        return res.status(200).json(results);
     })
 })
 
@@ -29,6 +32,32 @@ userRouter.get('/:id', (req, res) => {
             response.status(400).json(results);
         }
         response.status(200).json(results);
+    })
+})
+
+userRouter.put('/:id', (req,res) => {
+    const id = req.params.id
+    const {firstName, lastName, password, username} = req.body
+
+    pool.query(
+        `Update users SET first_name = ${firstName}, last_name = ${lastName}, password = ${password}, username = ${username} WHERE id = ${id}`,
+        (error, results) => {
+            if (error) {
+                throw error
+            }
+            response.status(200).send(`User modified with ID: ${id}`)
+        }
+    )
+
+})
+
+userRouter.delete('/:id', (req, res) => {
+    const id = req.params.id
+    pool.query(`DELETE FROM users WHERE id = ${id}`, (error,results) => {
+        if (error){
+            throw error
+        }
+        response.status(200).send(`User deleted with ID: ${id}`)
     })
 })
 
