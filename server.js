@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -6,8 +7,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const apiRouter = require('./api');
 const path = require('path');
-
-app.use('/api', apiRouter);
 
 app.use(cors());
 
@@ -19,6 +18,8 @@ app.use(
     extended: true,
   })
 );
+
+app.use('/api', apiRouter);
 
 app.use(
     cookieSession({

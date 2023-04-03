@@ -4,58 +4,62 @@ const pool = require('../config/db')
 
 userRouter.post('/', (req, res) => {
     const { firstName, lastName, password, username } = req.body
-
-    pool.query(`INSERT INTO users (first_name, last_name, password) VALUES (${firstName}, ${lastName}, ${password}, ${username})`)
-    if (error) {
-        throw error
-    }
-    response.status(201).send(`User added with ID: ${results.rows[0].id}`);
+    console.log(firstName, lastName, password, username)
+    pool.query(`INSERT INTO users (first_name, last_name, password, username) VALUES ('${firstName}', '${lastName}', '${password}', '${username}') RETURNING *`, (error,results) =>{
+        if (error) {
+            return res.status(500).json({
+                message: error.message
+            });
+        }
+        console.log(results.rows);
+        response.status(201).send('User added');
+    })
 })
 
 userRouter.get('/', (req,res) => {
-    console.log("test")
     pool.query('Select * FROM users ORDER BY id ASC', (error, results) => {
         if (error) {
            return res.status(500).json({
                message: error.message
            });
         }
-        return res.status(200).json(results);
+        return res.status(200).json(results.rows);
     })
 })
 
 userRouter.get('/:id', (req, res) => {
-    const id = (req.params.id)
+    const id = parseInt(req.params.id)
 
     pool.query(`Select * FROM users WHERE id = ${id}`, (error, results) =>{
         if (error) {
-            response.status(400).json(results);
+            response.status(500).json(error);
         }
-        response.status(200).json(results);
+        response.status(200).json(results.rows);
     })
 })
 
 userRouter.put('/:id', (req,res) => {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     const {firstName, lastName, password, username} = req.body
 
     pool.query(
-        `Update users SET first_name = ${firstName}, last_name = ${lastName}, password = ${password}, username = ${username} WHERE id = ${id}`,
+        `Update users SET first_name = '${firstName}', last_name = '${lastName}', password = '${password}', username = '${username}' WHERE id = '${id}'`,
         (error, results) => {
             if (error) {
-                throw error
+                response.status(500).json(error);
             }
-            response.status(200).send(`User modified with ID: ${id}`)
+            response.status(200).send(`User modified with ID:'${id}'`)
         }
     )
 
 })
 
 userRouter.delete('/:id', (req, res) => {
-    const id = req.params.id
-    pool.query(`DELETE FROM users WHERE id = ${id}`, (error,results) => {
-        if (error){
-            throw error
+    const id = parseInt(req.params.id);
+    console.log(id);
+    pool.query(`DELETE FROM users WHERE id = '${id}'`, (error,results) => {
+        if (error) {
+            response.status(500).json(error);
         }
         response.status(200).send(`User deleted with ID: ${id}`)
     })
